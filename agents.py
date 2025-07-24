@@ -1,21 +1,24 @@
 from crewai import Agent
 from textwrap import dedent
-from langchain_google_genai import ChatGoogleGenerativeAI
-from tools.search_tools import SearchTools # Import the direct tool
-from tools.calculator_tools import CalculatorTools # Import the direct tool
+# Import the actual tool classes
+from tools.search_tools import SearchTool
+from tools.calculator_tools import CalculatorTool
 
+# 1. Instantiate your tools one time
+search_tool = SearchTool()
+calculator_tool = CalculatorTool()
 
 """
 Creating Agents Cheat Sheet:
 - Think like a boss. Work backwards from the goal and think which employee
-    you need to hire to get the job done.
+  you need to hire to get the job done.
 - Define the Captain of the crew who orient the other agents towards the goal.
 - Define which experts the captain needs to communicate with and delegate tasks to.
-    Build a top down structure of the crew.
+  Build a top down structure of the crew.
 
 Goal:
 - Create a 7-day travel itinerary with detailed per-day plans,
-    including budget, packing suggestions, and safety tips.
+  including budget, packing suggestions, and safety tips.
 
 Captain/Manager/Boss:
 - Expert Travel Agent
@@ -37,10 +40,9 @@ Notes:
 # You can also define custom tasks in tasks.py
 class TravelAgents:
     def __init__(self):
-        self.GEMINI25FLASH = ChatGoogleGenerativeAI(model="gemini-2.5-flash",temperature=0.7)
-        # No need to instantiate SearchTools or CalculatorTools here if importing directly
-        # self.search_tools_instance = SearchTools()
-        # self.calculator_tools_instance = CalculatorTools()
+        # The actual LLM object should be passed in from main.py,
+        # but we'll use the string for now as per your original code.
+        self.GEMINI25FLASH = "gemini/gemini-1.5-flash"
 
     def expert_travel_agent(self):
         return Agent(
@@ -48,12 +50,14 @@ class TravelAgents:
             backstory=dedent("""Expert in travel planning and logistics.
                                 I have decade of experience making travel itineraries."""),
             goal=dedent("""Create a 7-day travel itinerary with detailed per-day plans,
-                            include budget, packing suggestions, and safety tips."""),
+                             include budget, packing suggestions, and safety tips."""),
+            # 2. Pass the tool instances to the agent
             tools=[
-                SearchTools, # Directly use the imported tool
-                CalculatorTools        # Directly use the imported tool
+                search_tool,
+                calculator_tool
             ],
             verbose=True,
+            allow_delegation=True, # Added to allow delegating to other agents
             llm=self.GEMINI25FLASH,
         )
 
@@ -62,18 +66,19 @@ class TravelAgents:
             role="City Selection Expert",
             backstory=dedent(f"""Expert at analyzing travel data to pick ideal destinations."""),
             goal=dedent(f"""Select the best cities based on weather, season, prices, and traveler interests"""),
-            tools=[SearchTools], # Directly use the imported tool
+            tools=[search_tool], # Pass the tool instance
             verbose=True,
             llm=self.GEMINI25FLASH,
         )
+
     def local_tour_guide(self):
         return Agent(
             role="Local Tour Guide",
             backstory=dedent(f"""Knowledgeable local guide with extensive information
-                                about the city, it's attractions and customs
-                                """),
+                                 about the city, it's attractions and customs
+                                 """),
             goal=dedent(f"""Provide the BEST insights about the selected city"""),
-            tools=[SearchTools], # Directly use the imported tool
+            tools=[search_tool], # Pass the tool instance
             verbose=True,
             llm=self.GEMINI25FLASH,
         )

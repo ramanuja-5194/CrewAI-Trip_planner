@@ -9,9 +9,8 @@ python = ">=3.10.0,<3.12"
 unstructured = '==0.10.25'
 pyowm = '3.3.0'
 python-dotenv = "1.0.0"
-crewai = "0.1.24"
-langchain-google-genai = "*"
-langchain = "*"
+crewai = "^0.150.0"
+crewai-tools = "^0.58.0"
 
 [tool.pyright]
 # https://github.com/microsoft/pyright/blob/main/docs/configuration.md

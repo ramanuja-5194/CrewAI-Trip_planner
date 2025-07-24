@@ -1,15 +1,16 @@
-from langchain.tools import tool
+from crewai.tools import BaseTool
+# from langchain.tools import tool # Kept for the commented out code below
 
+class CalculatorTool(BaseTool):
+    name: str = "Make a calculation"
+    description: str = """Useful to perform any mathematical calculations,
+    like sum, minus, multiplication, division, etc.
+    The input to this tool should be a mathematical
+    expression, a couple examples are `200*7` or `5000/2*10`
+    """
 
-class CalculatorTools():
-
-    @tool("Make a calculation")
-    def calculate(operation):
-        """Useful to perform any mathematical calculations,
-        like sum, minus, multiplication, division, etc.
-        The input to this tool should be a mathematical
-        expression, a couple examples are `200*7` or `5000/2*10`
-        """
+    def _run(self, operation: str) -> str:
+        """The main logic for the tool goes here."""
         try:
             return eval(operation)
         except SyntaxError:
